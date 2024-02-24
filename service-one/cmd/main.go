@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/k-vanio/observabilidade-open-telemetry/service-one/internal/core/search"
 	"github.com/k-vanio/observabilidade-open-telemetry/service-one/internal/infra"
 	"github.com/k-vanio/observabilidade-open-telemetry/shared"
 	"github.com/spf13/viper"
@@ -38,7 +39,9 @@ func main() {
 	}()
 
 	config := shared.NewConfig()
-	server := infra.NewServer(config)
+
+	clientZipCode := search.New(http.DefaultClient, config)
+	server := infra.NewServer(config, clientZipCode)
 	router := server.CreateServer()
 
 	go func() {

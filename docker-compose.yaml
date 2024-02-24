@@ -75,6 +75,7 @@ services:
       - OTEL_SERVICE_NAME=microservice-two
       - OTEL_EXPORTER_OTLP_ENDPOINT=otel-collector:4317
       - HTTP_PORT=:8181
+      - WEATHER_KEY=0d02a696df794e82955103053241801
     ports:
       - "8181:8181"
     depends_on:

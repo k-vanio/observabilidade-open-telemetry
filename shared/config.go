@@ -17,6 +17,7 @@ type Config struct {
 	Content            string
 	RequestNameOTEL    string
 	OTELTracer         trace.Tracer
+	WeatherKEY         string
 }
 
 type ConfigOps = func(*Config)
@@ -30,6 +31,7 @@ func NewConfig(ops ...ConfigOps) *Config {
 		ExternalCallMethod: viper.GetString("EXTERNAL_CALL_METHOD"),
 		RequestNameOTEL:    viper.GetString("REQUEST_NAME_OTEL"),
 		OTELTracer:         otel.Tracer("microservice-tracer"),
+		WeatherKEY:         viper.GetString("WEATHER_KEY"),
 	}
 	for _, op := range ops {
 		op(conf)

@@ -1,11 +1,14 @@
 package infra
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/k-vanio/observabilidade-open-telemetry/service-one/internal/domain"
+	"github.com/k-vanio/observabilidade-open-telemetry/service-one/internal/dto"
 	"github.com/k-vanio/observabilidade-open-telemetry/shared"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
@@ -13,12 +16,14 @@ import (
 )
 
 type Server struct {
-	Config *shared.Config
+	Config  *shared.Config
+	ZipCode domain.ZipCode
 }
 
-func NewServer(config *shared.Config) *Server {
+func NewServer(config *shared.Config, zipCode domain.ZipCode) *Server {
 	return &Server{
-		Config: config,
+		Config:  config,
+		ZipCode: zipCode,
 	}
 }
 
@@ -47,11 +52,11 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	ctx, span := s.Config.OTELTracer.Start(ctx, s.Config.RequestNameOTEL)
 	defer span.End()
 
-	req, _ := http.NewRequest(s.Config.ExternalCallMethod, s.Config.ExternalCallURL, nil)
+	request := dto.SearchRequest{ZipCode: r.URL.Query().Get("zipCode")}
+	response := s.ZipCode.Search(ctx, request)
 
-	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.Status)
 
-	http.DefaultClient.Do(req)
-
-	http.ResponseWriter(w).Write([]byte(s.Config.Content))
+	json.NewEncoder(w).Encode(response.Body)
 }
