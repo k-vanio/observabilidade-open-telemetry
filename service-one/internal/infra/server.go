@@ -52,8 +52,12 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	ctx, span := s.Config.OTELTracer.Start(ctx, s.Config.RequestNameOTEL)
 	defer span.End()
 
+	time.Sleep(1 * time.Millisecond * 200)
+
 	request := dto.SearchRequest{ZipCode: r.URL.Query().Get("zipCode")}
 	response := s.ZipCode.Search(ctx, request)
+
+	time.Sleep(1 * time.Millisecond * 200)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.Status)
