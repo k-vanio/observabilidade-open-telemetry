@@ -27,7 +27,7 @@ Before getting started, ensure you have the following prerequisites installed on
     ```
 
 7. URLS para acessar os serviços, só clicar nos links
-   - [Service One](http://localhost:8080/?zipCode=07987110)
-   - [JAEGER UI](http://localhost:16686)
-   - [Zipkin](http://127.0.0.1:9411/zipkin/)
-   - [Prometheus](http://localhost:9090)
+   - [http://localhost:8080/?zipCode=07987110](http://localhost:8080/?zipCode=07987110)
+   - [http://localhost:16686](http://localhost:16686)
+   - [http://127.0.0.1:9411/zipkin/](http://127.0.0.1:9411/zipkin/)
+   - [http://localhost:9090](http://localhost:9090)
