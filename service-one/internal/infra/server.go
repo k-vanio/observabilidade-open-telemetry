@@ -40,7 +40,7 @@ func (s *Server) CreateServer() *chi.Mux {
 	router.Handle("/metrics", promhttp.Handler())
 
 	// request handler
-	router.Get("/", s.HandleRequest)
+	router.Post("/", s.HandleRequest)
 
 	return router
 }
@@ -54,7 +54,9 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	time.Sleep(1 * time.Millisecond * 200)
 
-	request := dto.SearchRequest{ZipCode: r.URL.Query().Get("zipCode")}
+	request := dto.SearchRequest{}
+	json.NewDecoder(r.Body).Decode(&request)
+	
 	response := s.ZipCode.Search(ctx, request)
 
 	time.Sleep(1 * time.Millisecond * 200)

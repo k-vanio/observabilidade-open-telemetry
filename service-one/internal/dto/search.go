@@ -1,7 +1,7 @@
 package dto
 
 type SearchRequest struct {
-	ZipCode string
+	ZipCode string `json:"zipCode"`
 }
 
 type SearchResponse struct {
