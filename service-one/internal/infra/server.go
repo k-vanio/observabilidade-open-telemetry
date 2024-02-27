@@ -50,16 +50,15 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	ctx = otel.GetTextMapPropagator().Extract(ctx, carrier)
 	ctx, span := s.Config.OTELTracer.Start(ctx, s.Config.RequestNameOTEL)
-	defer span.End()
-
-	time.Sleep(1 * time.Millisecond * 200)
 
 	request := dto.SearchRequest{}
 	json.NewDecoder(r.Body).Decode(&request)
-	
+	time.Sleep(70 * time.Millisecond)
+	span.End()
 	response := s.ZipCode.Search(ctx, request)
-
-	time.Sleep(1 * time.Millisecond * 200)
+	ctx, span = s.Config.OTELTracer.Start(ctx, s.Config.RequestNameOTEL)
+	time.Sleep(70 * time.Millisecond)
+	defer span.End()
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.Status)
