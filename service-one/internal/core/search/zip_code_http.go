@@ -33,6 +33,9 @@ func (z *ZipCodeHttp) Search(ctx context.Context, request dto.SearchRequest) dto
 		return z.mountError(http.StatusUnprocessableEntity, "invalid zipCode")
 	}
 
+	ctx, span := z.config.OTELTracer.Start(ctx, "ZipCodeHttp.Search")
+	defer span.End()
+	
 	url := fmt.Sprintf("%s?zipCode=%s", z.config.ExternalCallURL, request.ZipCode)
 	req, err := http.NewRequest(z.config.ExternalCallMethod, url, nil)
 	if err != nil {
