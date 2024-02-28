@@ -1,6 +1,7 @@
 package search
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -33,19 +34,19 @@ func New(client domain.HTTPClient, config *shared.Config) *zipCodeHttp {
 	}
 }
 
-func (z *zipCodeHttp) Search(request dto.SearchRequest) dto.SearchResponse {
+func (z *zipCodeHttp) Search(ctx context.Context, request dto.SearchRequest) dto.SearchResponse {
 
 	regex := regexp.MustCompile("^[0-9]{8}$")
 	if !regex.MatchString(request.ZipCode) {
 		return z.mountError(http.StatusUnprocessableEntity, "invalid zipCode")
 	}
 
-	locale, err := z.FindZipCode(request.ZipCode)
+	locale, err := z.FindZipCode(ctx, request.ZipCode)
 	if err != nil {
 		return z.mountError(http.StatusNotFound, err.Error())
 	}
 
-	response, err := z.FindWeather(locale)
+	response, err := z.FindWeather(ctx, locale)
 	if err != nil {
 		return z.mountError(http.StatusNotFound, err.Error())
 	}
@@ -65,7 +66,10 @@ func (z *zipCodeHttp) mountError(status int, err string) dto.SearchResponse {
 	}
 }
 
-func (z *zipCodeHttp) FindZipCode(zipCode string) (string, error) {
+func (z *zipCodeHttp) FindZipCode(ctx context.Context, zipCode string) (string, error) {
+	ctx, span := z.config.OTELTracer.Start(ctx, "FindZipCode")
+	defer span.End()
+
 	urlZipCode := fmt.Sprintf("https://viacep.com.br/ws/%s/json/", zipCode[0:5]+"-"+zipCode[5:])
 	log.Println(urlZipCode)
 
@@ -91,7 +95,10 @@ func (z *zipCodeHttp) FindZipCode(zipCode string) (string, error) {
 	return body["localidade"].(string), nil
 }
 
-func (z *zipCodeHttp) FindWeather(locale string) (*ResponseSuccess, error) {
+func (z *zipCodeHttp) FindWeather(ctx context.Context, locale string) (*ResponseSuccess, error) {
+	ctx, span := z.config.OTELTracer.Start(ctx, "FindWeather")
+	defer span.End()
+
 	urlWeather := fmt.Sprintf("http://api.weatherapi.com/v1/current.json?key=%s&q=%s", z.config.WeatherKEY, url.QueryEscape(locale))
 	requestWeather, _ := http.NewRequest(http.MethodGet, urlWeather, nil)
 

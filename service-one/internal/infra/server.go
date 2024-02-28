@@ -55,8 +55,10 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	request := dto.SearchRequest{}
 	json.NewDecoder(r.Body).Decode(&request)
 
+	time.Sleep(20 * time.Millisecond)
 	response := s.ZipCode.Search(ctx, request)
-
+	time.Sleep(20 * time.Millisecond)
+	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.Status)
 

@@ -53,7 +53,7 @@ func (s *Server) HandleRequest(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	request := dto.SearchRequest{ZipCode: r.URL.Query().Get("zipCode")}
-	response := s.ZipCode.Search(request)
+	response := s.ZipCode.Search(ctx, request)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.Status)
